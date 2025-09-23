@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+.Python
+env/
+venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+*.so
+*.dll
+*.dylib
+pip-log.txt
+htmlcov/
+.coverage
+.tox/
+*.egg
+*.whl
+
+# ROS
+build/
+install/
+log/
+devel/
+*.bag
+*.rosinstall
+*.cmake
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# General
+*.log
+*.bak
+*.tmp
+*.orig
+
+
+
+model/
