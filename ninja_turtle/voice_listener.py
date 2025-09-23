@@ -10,11 +10,17 @@ class VoiceListener(Node):
     def __init__(self):
         super().__init__('voice_listener')
         self.pub = self.create_publisher(String, '/turtle_cmd', 10)
-        self.get_logger().info("Voice listener ready. Speak commands like 'up', 'down', 'circle'...")
-
         # Initialize TTS
         self.engine = pyttsx3.init()
         self.engine.setProperty('rate', 150)
+        greeting = (
+            "Hi there, I'm the masked ninja turtle, here to follow your drawing steps. "
+            "Use your voice to make art on the screen sim! Currently, I can do the following: "
+            "move up, down, left, right, stop, draw an arc, and clear/reset the screen. "
+            "Just say the command and I'll do my best!"
+        )
+        self.speak(greeting)
+        self.get_logger().info("Voice listener ready. Speak commands like 'up', 'down', 'circle'...")
 
         # Initialize speech recognition
         self.recognizer = sr.Recognizer()
@@ -43,7 +49,20 @@ class VoiceListener(Node):
                     msg = String()
                     msg.data = cmd
                     self.pub.publish(msg)
-                    self.speak("Yes boss")
+                    # More human acknowledgment
+                    ack_map = {
+                        "up": "Moving up!",
+                        "down": "Moving down!",
+                        "left": "Turning left!",
+                        "right": "Turning right!",
+                        "stop": "Stopping now!",
+                        "arc": "Drawing an arc!",
+                        "circle": "Drawing a full circle!",
+                        "clear": "Resetting the screen!",
+                        "reset": "Resetting my position!"
+                    }
+                    ack = ack_map.get(cmd, f"Command '{cmd}' received!")
+                    self.speak(ack)
             except sr.UnknownValueError:
                 pass  # Speech not understood
             except sr.RequestError as e:
@@ -51,9 +70,22 @@ class VoiceListener(Node):
     
     def parse_command(self, text):
         # Map recognized text to commands
-        for cmd in ["up", "down", "left", "right", "stop", "circle", "semi_circle", "full_circle"]:
-            if cmd in text:
-                return cmd
+        command_map = {
+            "up": ["up", "forward", "move forward", "go up"],
+            "down": ["down", "backward", "move backward", "go down", "go back", "back"],
+            "left": ["left", "turn left", "go left"],
+            "right": ["right", "turn right", "go right"],
+            "stop": ["stop", "halt", "freeze", "whoa"],
+            "arc": ["arc", "draw arc", "make arc"],
+            "circle": ["circle", "full circle", "draw full circle", "complete circle"],
+            "clear": ["clear", "clear screen", "erase", "start over"],
+            "reset": ["reset", "reset position", "center", "go to center", "teleport"]
+        }
+        
+        for cmd_key, phrases in command_map.items():
+            for phrase in phrases:
+                if phrase in text:
+                    return cmd_key
         return None
 
 

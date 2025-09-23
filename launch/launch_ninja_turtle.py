@@ -16,5 +16,10 @@ def generate_launch_description():
             executable='turtle_controller',
             name='turtle_controller'
         ),
+        Node (
+            package='ninja_turtle',
+            executable='voice_listener',
+            name='voice_listener'
+        )
 
     ])
