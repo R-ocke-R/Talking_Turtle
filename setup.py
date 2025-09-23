@@ -29,6 +29,7 @@ setup(
             'command_publisher = ninja_turtle.command_publisher:main',
             'voice_listener = ninja_turtle.voice_listener:main',
             'dummy_voice_listener = ninja_turtle.dummy_voice_listener:main',
+            'circle = ninja_turtle.circle:main',
         ],
     },
 )
