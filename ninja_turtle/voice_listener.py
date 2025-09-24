@@ -10,14 +10,15 @@ class VoiceListener(Node):
     def __init__(self):
         super().__init__('voice_listener')
         self.pub = self.create_publisher(String, '/turtle_cmd', 10)
+        self.speech_pub = self.create_publisher(String, '/recognized_speech', 10)
         # Initialize TTS
         self.engine = pyttsx3.init()
         self.engine.setProperty('rate', 150)
         greeting = (
             "Hi there, I'm the masked ninja turtle, here to follow your drawing steps. "
-            "Use your voice to make art on the screen sim! Currently, I can do the following: "
-            "move up, down, left, right, stop, draw an arc, and clear/reset the screen. "
-            "Just say the command and I'll do my best!"
+            # "Use your voice to make art on the screen sim! Currently, I can do the following: "
+            # "move up, down, left, right, stop, draw an arc, and clear/reset the screen. "
+            # "Just say the command and I'll do my best!"
         )
         self.speak(greeting)
         self.get_logger().info("Voice listener ready. Speak commands like 'up', 'down', 'circle'...")
@@ -44,6 +45,12 @@ class VoiceListener(Node):
             try:
                 text = self.recognizer.recognize_google(audio).lower()
                 self.get_logger().info(f"Heard: {text}")
+
+                # Publish raw recognized speech for game manager
+                speech_msg = String()
+                speech_msg.data = text
+                self.speech_pub.publish(speech_msg)
+
                 cmd = self.parse_command(text)
                 if cmd:
                     msg = String()
@@ -62,7 +69,7 @@ class VoiceListener(Node):
                         "reset": "Resetting my position!"
                     }
                     ack = ack_map.get(cmd, f"Command '{cmd}' received!")
-                    self.speak(ack)
+                    #self.speak(ack)
             except sr.UnknownValueError:
                 pass  # Speech not understood
             except sr.RequestError as e:

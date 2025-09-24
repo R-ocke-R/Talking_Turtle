@@ -6,6 +6,8 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 import math
 import time
+from std_srvs.srv import Empty
+from turtlesim.srv import TeleportAbsolute
 
 class TurtleController(Node):
     def __init__(self):
@@ -32,24 +34,28 @@ class TurtleController(Node):
             self.timer = None
 
         if cmd == "up":
-            twist.linear.x = 3.0
+            twist.linear.x = 2.0
             twist.angular.z = 0.0
             self.publisher_.publish(twist)
+            self.timer = self.create_timer(2.0, self.stop_movement)
 
         elif cmd == "down":
-            twist.linear.x = -3.0
+            twist.linear.x = -2.0
             twist.angular.z = 0.0
             self.publisher_.publish(twist)
+            self.timer = self.create_timer(2.0, self.stop_movement)
 
         elif cmd == "left":
             twist.linear.x = 0.0
-            twist.angular.z = 2.0
+            twist.angular.z = 1.57
             self.publisher_.publish(twist)
+            self.timer = self.create_timer(1.0, self.stop_movement)
 
         elif cmd == "right":
             twist.linear.x = 0.0
-            twist.angular.z = -2.0
+            twist.angular.z = -1.57
             self.publisher_.publish(twist)
+            self.timer = self.create_timer(1.0, self.stop_movement)
 
         elif cmd == "stop":
             twist.linear.x = 0.0
@@ -58,54 +64,19 @@ class TurtleController(Node):
 
         elif cmd == "circle":
             # Continuous circular motion
-            twist.linear.x = 2.0
-            twist.angular.z = 1.5
+            twist.linear.x = 10.0
+            twist.angular.z = 7.0
             self.publisher_.publish(twist)
 
         elif cmd == "arc":
             # Semi-circle using timer (non-blocking)
             twist.linear.x = 2.0
             twist.angular.z = 1.5
-            self.publisher_.publish(twist)
-            # Use timer instead of sleep
-            self.timer = self.create_timer(3.0, self.stop_movement)
-            
-        elif cmd == "full_circle":
-            # Full circle using timer (non-blocking)
-            twist.linear.x = 2.0
-            twist.angular.z = 1.5
-            self.publisher_.publish(twist)
-            # Use timer instead of sleep
-            self.timer = self.create_timer(6.0, self.stop_movement)
-
-
-        # elif cmd == "arc":
-        #     # Draw a continuous circle (non-blocking)
-        #     twist.linear.x = 2.0
-        #     twist.angular.z = 2.0  # Increase angular speed for a tighter circle
-        #     self.publisher_.publish(twist)
-
-        # elif cmd == "circle":
-        #     # Draw a full circle (blocking, then stop)
-        #     linear_speed = 2.0
-        #     angular_speed = 2.0
-        #     duration = (2 * math.pi) / abs(angular_speed)
-        #     start_time = time.time()
-        #     rate = self.create_rate(20, self.get_clock())
-        #     while time.time() - start_time < duration:
-        #         twist.linear.x = linear_speed
-        #         twist.angular.z = angular_speed
-        #         self.publisher_.publish(twist)
-        #         rate.sleep()
-        #     # Stop after completing the circle
-        #     twist.linear.x = 0.0
-        #     twist.angular.z = 0.0
-        #     self.publisher_.publish(twist)
-
+            self.publisher_.publish(twist) 
 
         elif cmd == "clear":
             # Call the clear service to reset the turtlesim screen (non-blocking)
-            from std_srvs.srv import Empty
+            
             client = self.create_client(Empty, '/clear')
             if not client.wait_for_service(timeout_sec=2.0):
                 self.get_logger().error('Clear service not available')
@@ -115,8 +86,7 @@ class TurtleController(Node):
             self.get_logger().info('Screen cleared!')
 
         elif cmd == "reset":
-            # Reset turtle position to center
-            from turtlesim.srv import TeleportAbsolute
+            # First reset turtle position to center
             client = self.create_client(TeleportAbsolute, '/turtle1/teleport_absolute')
             if not client.wait_for_service(timeout_sec=2.0):
                 self.get_logger().error('Teleport service not available')
@@ -126,7 +96,14 @@ class TurtleController(Node):
             req.y = 5.544445
             req.theta = 0.0
             client.call_async(req)
-            self.get_logger().info('Turtle position reset!')
+            # Then clear screen
+            clear_client = self.create_client(Empty, '/clear')
+            if not clear_client.wait_for_service(timeout_sec=2.0):
+                self.get_logger().error('Clear service not available')
+                return
+            clear_req = Empty.Request()
+            clear_client.call_async(clear_req)
+            self.get_logger().info('Turtle position reset and screen cleared!')
 
         else:
             self.get_logger().info(f"Unknown command: {cmd}")
@@ -160,7 +137,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
-
-
-
