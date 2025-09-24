@@ -10,7 +10,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/launch_ninja_turtle.py', 'launch/launch_draw_with_me.py']),
+        ('share/' + package_name + '/launch', ['launch/launch_ninja_turtle.py', 'launch/launch_draw_with_me.py', 'launch/launch_drawing_ninja.py']),
     ],
     install_requires=[
         'setuptools',

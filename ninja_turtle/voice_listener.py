@@ -16,9 +16,11 @@ class VoiceListener(Node):
         self.engine.setProperty('rate', 150)
         greeting = (
             "Hi there, I'm the masked ninja turtle, here to follow your drawing steps. "
-            # "Use your voice to make art on the screen sim! Currently, I can do the following: "
-            # "move up, down, left, right, stop, draw an arc, and clear/reset the screen. "
-            # "Just say the command and I'll do my best!"
+            "Use your voice to make art on the screen sim! Currently, I can do the following: "
+            "move up, down, left, right, stop, draw an arc, a circle and clear/reset the screen. "
+            "Just say the command and I'll do my best!"
+            "     "
+            "There is also a fun game mode where I can guide you to draw shapes step-by-step. Just say 'draw with me' to start!"
         )
         self.speak(greeting)
         self.get_logger().info("Voice listener ready. Speak commands like 'up', 'down', 'circle'...")
@@ -69,7 +71,7 @@ class VoiceListener(Node):
                         "reset": "Resetting my position!"
                     }
                     ack = ack_map.get(cmd, f"Command '{cmd}' received!")
-                    #self.speak(ack)
+                    self.speak(ack)
             except sr.UnknownValueError:
                 pass  # Speech not understood
             except sr.RequestError as e:
