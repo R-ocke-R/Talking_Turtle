@@ -10,14 +10,17 @@ class VoiceListener(Node):
     def __init__(self):
         super().__init__('voice_listener')
         self.pub = self.create_publisher(String, '/turtle_cmd', 10)
+        self.speech_pub = self.create_publisher(String, '/recognized_speech', 10)
         # Initialize TTS
         self.engine = pyttsx3.init()
         self.engine.setProperty('rate', 150)
         greeting = (
             "Hi there, I'm the masked ninja turtle, here to follow your drawing steps. "
             "Use your voice to make art on the screen sim! Currently, I can do the following: "
-            "move up, down, left, right, stop, draw an arc, and clear/reset the screen. "
+            "move up, down, left, right, stop, draw an arc, a circle and clear/reset the screen. "
             "Just say the command and I'll do my best!"
+            "     "
+            "There is also a fun game mode where I can guide you to draw shapes step-by-step. Just say 'draw with me' to start!"
         )
         self.speak(greeting)
         self.get_logger().info("Voice listener ready. Speak commands like 'up', 'down', 'circle'...")
@@ -44,6 +47,12 @@ class VoiceListener(Node):
             try:
                 text = self.recognizer.recognize_google(audio).lower()
                 self.get_logger().info(f"Heard: {text}")
+
+                # Publish raw recognized speech for game manager
+                speech_msg = String()
+                speech_msg.data = text
+                self.speech_pub.publish(speech_msg)
+
                 cmd = self.parse_command(text)
                 if cmd:
                     msg = String()
